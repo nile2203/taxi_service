@@ -1,7 +1,7 @@
 import re
 
 
-def validate_bank_information(data):
+def validate_bank_information(**data):
     if not data:
         return 0, "Please provide data to validate"
 
@@ -33,6 +33,6 @@ def validate_account_number(account_number):
 
 def validate_micr(micr):
     pattern = re.compile("^(\d{9})")
-    if not pattern.match(account_number):
+    if not pattern.match(micr):
         return 0, "Micr code is invalid"
     return 1, "Micr code is valid"

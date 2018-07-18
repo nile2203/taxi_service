@@ -11,7 +11,7 @@ https://docs.djangoproject.com/en/2.0/ref/settings/
 """
 
 import os
-
+from django.conf import settings
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -37,7 +37,7 @@ GEOPOSITION_MARKER_OPTIONS = {
 ALLOWED_HOSTS = []
 GEOPOSITION_GOOGLE_MAPS_API_KEY = 'AIzaSyDXWMCXQKX-fiHPuvzYrOY9sSjKiacM4hk'
 
-AUTH_USER_MODEL = 'ola.UserAccount'
+settings.AUTH_USER_MODEL = 'ola.UserAccount'
 
 ROOT_URLCONF = 'taxi_service.urls'
 # Application definition
@@ -83,7 +83,7 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = 'taxi.wsgi.application'
+WSGI_APPLICATION = 'taxi_service.wsgi.application'
 
 
 # Database

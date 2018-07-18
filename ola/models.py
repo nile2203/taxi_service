@@ -19,32 +19,23 @@ def get_24_char_uuid():
 
 
 class UserAccountManager(BaseUserManager):
-    def create_user(self,
-                    email,
-                    password=None,
-                    first_name=None,
-                    phone=None,
-                    gender=None,
-                    dob=None,
-                    last_name=None,
-                    isd_code=None,
-                    **extra_fields):
+    def create_user(self, **extra_fields):
 
+        email = extra_fields.get('email')
         if not email:
             raise ValueError('Users must have an email address')
 
         user = self.model(
             email=self.normalize_email(email),
-            first_name=first_name,
-            last_name=last_name,
-            gender=gender,
-            date_of_birth=dob,
-            phone_number=phone,
-            isd_code=isd_code,
-            **extra_fields
+            first_name=extra_fields.get('first_name'),
+            last_name=extra_fields.get('last_name'),
+            gender=extra_fields.get('gender'),
+            date_of_birth=extra_fields.get('dob'),
+            phone_number=extra_fields.get('phone_number'),
+            isd_code=extra_fields.get('isd_code'),
         )
 
-        user.set_password(password)
+        user.set_password(extra_fields.get('password'))
         user.save(using=self._db)
         return user
 
@@ -83,7 +74,6 @@ class UserAccount(AbstractBaseUser):
         max_length=255,
         unique=True,
     )
-    user_id = models.CharField(max_length=100, blank=False, unique=True, default=get_24_char_uuid)
     type = models.CharField(max_length=10, default=TYPE_USER, choices=type_choices)
     first_name = models.CharField(max_length=30, blank=True, null=True)
     last_name = models.CharField(max_length=30, blank=True, null=True)
@@ -99,7 +89,7 @@ class UserAccount(AbstractBaseUser):
     modified = ModificationDateTimeField(null=True)
 
     USERNAME_FIELD = 'email'
-    REQUIRED_FIELDS = ['type', 'phone_number']
+    REQUIRED_FIELDS = ['type', 'phone_number', 'password', 'first_name', 'gender']
 
     def __unicode__(self):
         fields = [self.first_name, self.last_name, self.email]
@@ -136,6 +126,20 @@ class Cab(models.Model):
     TYPE_PRIME = "PRIME"
     TYPE_LUXURY = "LUXURY"
 
+    STATUS_REQUESTING = "REQUESTING"
+    STATUS_BOOKED = "BOOKED"
+    STATUS_RIDING = "RIDING"
+    STATUS_CANCELLED = "CANCELLED"
+    STATUS_COMPLETED = "COMPLETED"
+
+    status_choices = (
+        (STATUS_REQUESTING, "REQUESTING"),
+        (STATUS_BOOKED, "BOOKED"),
+        (STATUS_RIDING, "RIDING"),
+        (STATUS_CANCELLED, "CANCELLED"),
+        (STATUS_COMPLETED, "COMPLETED")
+    )
+
     service_type_choices = (
         (TYPE_MINI, "MINI"),
         (TYPE_PRIME, "PRIME"),
@@ -168,6 +172,7 @@ class Cab(models.Model):
     color = models.CharField(max_length=20, blank=True, null=True)
     ac = models.BooleanField(default=True)
     location = GeopositionField()
+    status = models.CharField(max_length=20, default=STATUS_REQUESTING, choices=status_choices)
 
     created = CreationDateTimeField(null=True)
     modified = ModificationDateTimeField(null=True)
@@ -259,19 +264,6 @@ class DriverDocument(models.Model):
 
 
 class BookingHistory(models.Model):
-    STATUS_REQUESTING = "REQUESTING"
-    STATUS_BOOKED = "BOOKED"
-    STATUS_RIDING = "RIDING"
-    STATUS_CANCELLED = "CANCELLED"
-    STATUS_COMPLETED = "COMPLETED"
-
-    status_choices = (
-        (STATUS_REQUESTING, "REQUESTING"),
-        (STATUS_BOOKED, "BOOKED"),
-        (STATUS_RIDING, "RIDING"),
-        (STATUS_CANCELLED, "CANCELLED"),
-        (STATUS_COMPLETED, "COMPLETED")
-    )
 
     user = models.ForeignKey('UserAccount', related_name='user', on_delete=models.CASCADE)
     driver = models.ForeignKey('UserAccount', related_name='driver', on_delete=models.CASCADE)
@@ -281,7 +273,6 @@ class BookingHistory(models.Model):
     ending_point = models.TextField(max_length=100, blank=True, null=True)
     date_of_booking = models.DateField(null=True, blank=True)
     duration = models.TimeField()
-    status = models.CharField(max_length=20, default=STATUS_REQUESTING, choices=status_choices)
     rating = models.OneToOneField('Rating', on_delete=models.CASCADE)
     cab = models.OneToOneField('Cab', on_delete=models.CASCADE)
 

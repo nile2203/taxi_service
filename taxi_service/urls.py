@@ -21,10 +21,12 @@ from ola.views import user_views, cab_views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    url(r'^register/', user_views.api_user_registration, name="create user account for users and drivers"),
-    url(r'^driver/documents/upload/', user_views.api_upload_driver_documents, name="upload driver documents"),
-    url(r'^driver/bank/details/', user_views.api_register_driver_bank_details, name="register driver bank details"),
-    url(r'^booking/history/get/$', user_views.api_get_booking_history, name="get user booking history"),
-    url(r'^book/cab/$', cab_views.api_book_cab, name="book cab"),
-    url(r'^cabs/get/$', cab_views.api_get_all_available_cabs, name="get all available cabs")
+
+    path('v1/api/user/register/', user_views.UserAccountRegistrationView.as_view()),
+    path('v1/api/user/bank/details/', user_views.BankDetailsView.as_view()),
+    path('v1/api/user/booking/history/', user_views.GetBookingHistoryView.as_view()),
+    path('v1/api/cab/', cab_views.RegisterCabView.as_view()),
+    path('v1/api/cab/available/', cab_views.AvailableCabView.as_view()),
+    path('v1/api/cab/book/', cab_views.BookCabView.as_view())
+
 ]
